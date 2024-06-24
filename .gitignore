@@ -1,0 +1,8 @@
+.env
+.venv
+channels.json
+build/
+__pycache__/
+*.pyc
+.idea/
+.vscode/

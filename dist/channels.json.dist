@@ -1,0 +1,21 @@
+{
+  "channel_name": {
+    "target_languages": [
+      "en",
+      "ja"
+    ],
+    "translation_engine": "google",
+    "remove_emojis": true,
+    "ignore_languages": [
+      "en",
+      "ja"
+    ],
+    "ignore_words": [
+      "w",
+      "ww",
+      "www"
+    ],
+    "enabled": true,
+    "debug_mode": false
+  }
+}

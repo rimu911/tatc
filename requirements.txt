@@ -1,0 +1,6 @@
+emoji~=2.12.1
+translators~=5.9.2
+twitchio~=2.9.1
+python-dotenv~=1.0.1
+fast_langdetect~=0.1.1
+pyinstaller~=6.8.0
