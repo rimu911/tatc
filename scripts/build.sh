@@ -4,9 +4,10 @@ cd "$(dirname "$(realpath "${0}")")/.."
 echo "Current Working Directory: '$(pwd)'"
 
 [[ -d "$(pwd)/.venv" ]] || python -m venv .venv
+[[ -d "$(pwd)/dist" ]] && rm -rfv "$(pwd)/dist"
 
 (
-  source . "$(pwd)/.venv/bin/activate"
+  . "$(pwd)/.venv/bin/activate"
   pip install -r "$(pwd)/requirements.txt"
   pyinstaller --clean "$(pwd)/tatc.spec"
 )
@@ -18,4 +19,4 @@ cp -v "$(pwd)/LICENSE.txt" "$(pwd)/dist"
 cp -v "$(pwd)/README.md" "$(pwd)/dist"
 
 # copy all necessary standard files
-cp -v "$(pwd)/examples/"* "$(pwd)/dist"
+cp -rvT "$(pwd)/examples" "$(pwd)/dist"

@@ -3,18 +3,21 @@ import signal
 import fast_langdetect
 
 import config
-from app import TwitchChatBot
-
-__app_name__ = 'TaTC is another Translation Chatbot'
+from tatc import core
+from tatc.core.bots import TatcTwitchChatBot
+from tatc.modules import load_modules
 
 
 def main():
-    init()
-    bot = TwitchChatBot()
+    init_language_detection()
+    bot = TatcTwitchChatBot(
+        configuration=core.init(),
+        modules=load_modules()
+    )
     bot.run()
 
 
-def init():
+def init_language_detection():
     """
     Initialize fast_langdetect memory models
     """

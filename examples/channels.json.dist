@@ -1,20 +1,17 @@
 {
   "channel_name": {
-    "target_languages": [
-      "en",
-      "ja"
-    ],
-    "translation_engine": "google",
-    "remove_emojis": true,
-    "ignore_languages": [
-      "en",
-      "ja"
-    ],
-    "ignore_words": [
-      "w",
-      "ww",
-      "www"
-    ],
+    "translations": {
+      "target_languages": [
+      ],
+      "translation_engine": "google",
+      "sanitize_emojis": false,
+      "ignore_languages": [],
+      "enabled": false,
+      "debug_mode": false,
+      "sanitize_usernames": false,
+      "ignore_words": [
+      ]
+    },
     "enabled": true,
     "debug_mode": false
   }
