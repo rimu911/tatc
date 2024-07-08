@@ -1,0 +1,18 @@
+{
+  "channel_name": {
+    "translations": {
+      "target_languages": [
+      ],
+      "translation_engine": "google",
+      "sanitize_emojis": false,
+      "ignore_languages": [],
+      "enabled": false,
+      "debug_mode": false,
+      "sanitize_usernames": false,
+      "ignore_words": [
+      ]
+    },
+    "enabled": true,
+    "debug_mode": false
+  }
+}
