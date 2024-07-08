@@ -19,4 +19,4 @@ cp -v "$(pwd)/LICENSE.txt" "$(pwd)/dist"
 cp -v "$(pwd)/README.md" "$(pwd)/dist"
 
 # copy all necessary standard files
-cp -rvT "$(pwd)/examples" "$(pwd)/dist"
+cp -rv "$(pwd)/examples/" "$(pwd)/dist"
