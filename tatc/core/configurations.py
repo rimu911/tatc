@@ -141,7 +141,7 @@ class TatcChannelModuleConfiguration:
         return ', '.join(String.try_split(value, ','))
 
     def set(self, __key: str, __value: Union[str, None]) -> str:
-        value = self.get(__key)
+        value = self.__getattribute__(__key)
         is_list = isinstance(value, list)
         if is_list:
             __value = String.strips(
@@ -149,8 +149,7 @@ class TatcChannelModuleConfiguration:
             )
 
         self.__setattr__(__key, __value)
-        value = self.get(__key)
-        return ','.join(value) if is_list else value
+        return self.get(__key)
 
     def info(self, __key: str) -> list[str]:
         raise NotImplementedError(f'Help not available for "{__key}"')
