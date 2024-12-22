@@ -6,7 +6,8 @@ Constants for translation modules
 # environment related constants
 DEFAULT_TRANSLATION_ENGINE = 'default_translation_engine'
 DEFAULT_IGNORE_WORDS = 'default_ignore_words'
-LOW_MEMORY_MODE = 'low_memory_mode'
+LANGUAGE_DETECTION_MODEL = 'language_detection_model'
+LANGUAGE_DETECTION_THRESHOLD = 'language_detection_threshold'
 
 # configuration related constants
 ENABLED = ENABLED

@@ -4,21 +4,18 @@ from functools import cached_property, lru_cache
 from os import environ
 from typing import Generator, Union
 
-from tatc.core import (
-    Environment, TatcApplicationConfiguration, TatcChannelConfiguration, TatcChannelModuleConfiguration
-)
+from tatc.core import Environment, TatcChannelConfiguration, TatcModuleConfiguration
 from tatc.modules.translations.constants import *
+from tatc.modules.translations.internal.translators import get_translator
 from tatc.utilities import Boolean, String
-
-import translators as ts
 
 
 @lru_cache(maxsize=1)
-def environment() -> TatcTranslationChannelModuleEnvironment:
-    return TatcTranslationChannelModuleEnvironment()
+def environment() -> TatcTranslationModuleEnvironment:
+    return TatcTranslationModuleEnvironment()
 
 
-class TatcTranslationChannelModuleEnvironment(Environment):
+class TatcTranslationModuleEnvironment(Environment):
     @cached_property
     def __default_ignore_words(self) -> set[str]:
         return set([
@@ -26,8 +23,12 @@ class TatcTranslationChannelModuleEnvironment(Environment):
         ])
 
     @cached_property
-    def low_memory_mode(self) -> True:
-        return Boolean.parse(environ.get(LOW_MEMORY_MODE, 'true'))
+    def language_detection_model(self) -> str:
+        return environ.get(LANGUAGE_DETECTION_MODEL, 'adaptive')
+
+    @cached_property
+    def language_detection_threshold(self) -> float:
+        return float(environ.get(LANGUAGE_DETECTION_THRESHOLD, '0.75'))
 
     @cached_property
     def default_translation_engine(self) -> str:
@@ -38,7 +39,7 @@ class TatcTranslationChannelModuleEnvironment(Environment):
         return list(self.__default_ignore_words)
 
 
-class TatcTranslationChannelModuleConfiguration(TatcChannelModuleConfiguration):
+class TatcTranslationModuleConfiguration(TatcModuleConfiguration):
     """
     Per-channel configuration object for the translation module
     """
@@ -130,15 +131,11 @@ class TatcTranslationChannelModuleConfiguration(TatcChannelModuleConfiguration):
 
     @property
     def supported_languages(self):
-        return self.__supported_language(self.translation_engine)
+        return get_translator(self.translation_engine).supported_languages
 
     @property
     def supported_engines(self):
-        return self.__supported_engines()
-
-    @lru_cache(maxsize=1)
-    def __supported_language(self, translation_engine: str):
-        return ts.get_languages(translator=translation_engine)
+        return get_translator(self.translation_engine).supported_engines
 
     @lru_cache(maxsize=5)
     def info(self, __key: str) -> Union[Generator[str, any, None], list[str]]:
@@ -147,8 +144,3 @@ class TatcTranslationChannelModuleConfiguration(TatcChannelModuleConfiguration):
         elif __key in [IGNORE_LANGUAGES, TARGET_LANGUAGES]:
             return String.join(', ', self.supported_languages, max_length=250)
         return super().info(__key)
-
-    @staticmethod
-    @lru_cache(maxsize=1)
-    def __supported_engines():
-        return ts.translators_pool

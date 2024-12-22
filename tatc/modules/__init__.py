@@ -1,10 +1,10 @@
 # register the modules to be loaded here
 from tatc import core
-from tatc.modules.translations import TatcTranslationChannelModule
+from tatc.modules.translations import TatcTranslationModule
 
 _configuration_ = core.init()
 _registered_modules_ = [
-    TatcTranslationChannelModule(_configuration_)
+    TatcTranslationModule(_configuration_)
 ]
 
 

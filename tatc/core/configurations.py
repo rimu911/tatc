@@ -115,7 +115,7 @@ class TatcChannelConfiguration:
         return data
 
 
-class TatcChannelModuleConfiguration:
+class TatcModuleConfiguration:
     def __init__(self, name: str, channel_configuration: TatcChannelConfiguration):
         self.__name = name
         self.__data = channel_configuration.get_module_configuration(name)

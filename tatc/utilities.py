@@ -1,6 +1,8 @@
 from typing import Generator, Iterable, Sized, Union
 
 import numbers
+import re
+import os
 
 
 class Objects:
@@ -15,7 +17,7 @@ class Objects:
         if isinstance(value, bool) or isinstance(value, numbers.Number):
             return False
 
-        return bool(value)
+        return not bool(value)
 
 
 class Boolean:
@@ -49,6 +51,9 @@ class Boolean:
 
 
 class String:
+    def is_blank(value: str) -> bool:
+        return Objects.is_blank(value.strip() if isinstance(value, str) else value)
+
     @staticmethod
     def strips(values: Iterable[str]) -> list[str]:
         """
@@ -105,3 +110,13 @@ class Collections:
             return values
         for i in range(0, len(values), size):
             yield list(values[i:i+size])
+
+
+class Directory:
+    def listdir(path: str, regex_filter: str = '.*') -> list[str]:
+        path = os.path.abspath(path)
+        names = list(filter(
+            lambda name: re.match(regex_filter, name),
+            os.listdir(path)
+        ))
+        return [os.path.join(path, name) for name in names]

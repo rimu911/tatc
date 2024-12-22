@@ -17,7 +17,7 @@ imposed by third parties provider
 ### Libraries:
 * [TwitchIO | GitHub](https://github.com/PythonistaGuild/TwitchIO)
 * [translators | GitHub](https://github.com/UlionTse/translators)
-* [fast-langdetect | GitHub](https://github.com/LlmKira/fast-langdetect)
+* [lingua-language-detector | GitHub](https://github.com/pemistahl/lingua-py)
 
 ## Building from source
 
@@ -113,28 +113,47 @@ Typical directory structure:
 #### Environment Variables:
 _Note: The following can be specified as an environment variable, or in `.env` within the current working directory_
 
-| Environment Variables        | Value Type  | Example             | Description                                                                   |
-|------------------------------|-------------|---------------------|-------------------------------------------------------------------------------|
-| `twitch_access_token`        | `str`       | `key`               | The OAuth Token for Twitch                                                    |
-| `bot_administrators`         | `list[str]` | `user_one,user_two` | The list of users that is allowed to perform administrative commands          | 
-| `low_memory_mode`            | `bool`      | `true`              | Use lesser memory when performing language detection                          |
-| `default_translation_engine` | `str`       | `google`            | The default translation engine to use when no translation engine is specified |
-| `default_ignore_words`       | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated by default      |
-| `logging_level`              | `str`       | `info`              | The amount of information to be logged into log files                         |
+| Environment Variables          | Value Type  | Example             | Description                                                                        |
+| ------------------------------ | ----------- | ------------------- | ---------------------------------------------------------------------------------- |
+| `twitch_access_token`          | `str`       | `key`               | The OAuth Token for Twitch                                                         |
+| `bot_administrators`           | `list[str]` | `user_one,user_two` | The list of users that is allowed to perform administrative commands               |
+| `language_detection_model`     | `str`       | `adaptive`          | The language detection model to use when detecting language offline                |
+| `language_detection_threshold` | `float`     | `0.75`              | The score threshold to accept when detecting the language via the `adaptive` model |
+| `default_translation_engine`   | `str`       | `google`            | The default translation engine to use when no translation engine is specified      |
+| `default_ignore_words`         | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated by default           |
+| `logging_level`                | `str`       | `info`              | The amount of information to be logged into log files                              |
 
+##### Supported Language Detection Models
+`legacy`
+* Uses pre-trained models in the included libraries to identify supported languages; This detection model has the lowest detection accuracy 
+
+`legacy-lazy`
+* Uses pre-trained models in the included libraries to identify supported languages; This model utilizes the lazy loading mechanism and is loaded as needed.
+* The lazy loading mechanism is only supported when `translation_engine` is set to `google` or `bing`
+
+`adaptive`
+* This models adaptively learns the words to needed to identify languages using Multinomial Naive Bayes algorithm
+* This model is only supported when `translation_engine` is set to `google` or `bing` as the algorithmn relies results from these engine for learning
+* Training data can be added to `resources/<language_id>.csv` to improve initial detection accuracy or to reduce the need to use external services
+
+`adaptive-forced`
+* Forces loading the adaptive model when using an unsupported translation engine
+* Adaptive learning may not be available and accuracy is limited to known data only
+
+When using other available but unsupported translation engine, language detection model will always default to `legacy`
 
 #### Translation
 _Note: Configuration for translation is per channel basis, and is not shared across all channels_
 
-| Supported Key         | Value Type  | Example             | Description                                                                                                                                  |
-|-----------------------|-------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `target_languages`    | `list[str]` | `en,ja`             | The target languages to be translated, by default, chat messages in the specified target languages will be ignored                           |
-| `ignore_languages`    | `list[str]` | `en,ja`             | The languages to ignore, by default, chat messages in the specified target languages will be ignored                                         |
-| `translation_engines` | `str`       | `google`            | The translation engine to use for translation, defaults to the environment variable `default_translation_engine` unless overridden           |
-| `sanitize_emojis`     | `bool`      | `true`              | Remove emojis from text before sending for translation                                                                                       |
-| `sanitize_usernames`  | `bool`      | `true`              | Remove usernames from text before sending for translation                                                                                    |
-| `ignore_words`        | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated, defaults to the environment variable `default_ignore_words` unless overridden | 
-| `debug_mode`          | `bool`      | `true`              | Allow errors messages to be sent as messages by the chatbot                                                                                  |
-| `enabled`             | `bool`      | `true`              | Enable or disable the module for the current channel                                                                                         |
+| Supported Key        | Value Type  | Example             | Description                                                                                                                                  |
+| -------------------- | ----------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target_languages`   | `list[str]` | `en,ja`             | The target languages to be translated, by default, chat messages in the specified target languages will be ignored                           |
+| `ignore_languages`   | `list[str]` | `en,ja`             | The languages to ignore, by default, chat messages in the specified target languages will be ignored                                         |
+| `translation_engine` | `str`       | `google`            | The translation engine to use for translation, defaults to the environment variable `default_translation_engine` unless overridden           |
+| `sanitize_emojis`    | `bool`      | `true`              | Remove emojis from text before sending for translation                                                                                       |
+| `sanitize_usernames` | `bool`      | `true`              | Remove usernames from text before sending for translation                                                                                    |
+| `ignore_words`       | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated, defaults to the environment variable `default_ignore_words` unless overridden |
+| `debug_mode`         | `bool`      | `true`              | Allow errors messages to be sent as messages by the chatbot                                                                                  |
+| `enabled`            | `bool`      | `true`              | Enable or disable the module for the current channel                                                                                         |
 
 

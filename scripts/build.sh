@@ -9,14 +9,10 @@ echo "Current Working Directory: '$(pwd)'"
 (
   . "$(pwd)/.venv/bin/activate"
   pip install -r "$(pwd)/requirements.txt"
-  pyinstaller --clean "$(pwd)/tatc.spec"
+  pyinstaller --clean --onefile --name "tatc" --collect-data "emoji" main.py
 )
 
-# copy LICENSE file
 cp -v "$(pwd)/LICENSE.txt" "$(pwd)/dist"
-
-# copy README.md file
 cp -v "$(pwd)/README.md" "$(pwd)/dist"
-
-# copy all necessary standard files
-cp -rv "$(pwd)/examples/" "$(pwd)/dist"
+cp -rv "$(pwd)/examples" "$(pwd)/dist"
+cp -rv "$(pwd)/resources" "$(pwd)/dist"

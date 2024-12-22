@@ -1,4 +1,3 @@
-import threading
 
 from dotenv import load_dotenv
 from functools import lru_cache
@@ -13,6 +12,8 @@ from tatc.core.constants import *
 import json
 import logging
 import os
+import threading
+
 
 load_dotenv(
     path.join(
@@ -114,6 +115,11 @@ class TatcChannelModule(commands.Cog):
         self.__configuration = configuration
         self.__name = name
         self.__logger = logger or get_logger('')
+        self.__bot = None
+
+    @property
+    def bot(self) -> commands.Bot:
+        return self.__bot
 
     @property
     def name(self) -> str:
@@ -126,7 +132,11 @@ class TatcChannelModule(commands.Cog):
     def _configurations(self) -> TatcApplicationConfiguration:
         return self.__configuration
 
-    def get_module_configuration(self, channel_name: str) -> TatcChannelModuleConfiguration:
+    @bot.setter
+    def bot(self, bot: commands.Bot):
+        self.__bot = bot
+
+    def get_module_configuration(self, channel_name: str) -> TatcModuleConfiguration:
         """
         Returns the configuration module object relevant to the current channel module
         """
