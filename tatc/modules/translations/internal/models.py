@@ -218,7 +218,7 @@ class LegacyDetectionModel(LanguageDetectionModel):
 
     def detect(self, text: str) -> list[(str, float)]:
         detected_language = self.model.detect_language_of(text)
-        return (detected_language.iso_code_639_1.name.lower(), 1.0)
+        return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
     
     def train(self, text: str, expected_language: str):
         pass
@@ -266,7 +266,7 @@ class LazyLoadingDetectionModel(LanguageDetectionModel):
 
     def detect(self, text: str) -> list[(str, float)]:
         detected_language = self.model.detect_language_of(text)
-        return (detected_language.iso_code_639_1.name.lower(), 1.0)
+        return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
     
     def train(self, text: str, expected_language: str):
         expected_language = expected_language.lower()
