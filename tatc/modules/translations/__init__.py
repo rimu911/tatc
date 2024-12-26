@@ -46,6 +46,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
             content,
             TwitchEmote.parse(message.tags.get('emotes', ''))
         )
+        text = Twitch.sanitize_uris(text)
 
         if configuration.sanitize_emojis:
             text = Twitch.sanitize_emojis(text)

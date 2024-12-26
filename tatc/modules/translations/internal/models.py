@@ -93,7 +93,21 @@ class NaiveBayesDetectionModel(LanguageDetectionModel):
 
     @lru_cache(maxsize=10)
     def __cached_split_words(self, text: str):
-        return list(set(self.__pattern.findall(text)))
+        return list(set(self.__pattern.findall(
+            self.__sanitize_text(text)
+        )))
+
+    def __sanitize_text(self, text: str) -> str:
+        return re.sub(r'[^\w\s]+|[\d]+', '', text)
+
+    def __sanitize_by_language(self, text: str, expected_language) -> str:
+        match expected_language:
+            case 'ja' | 'zh' | 'zh-cn' | 'zh-tw':
+                pattern = re.compile(r'[^\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]', re.IGNORECASE)
+                return re.sub(pattern, '', text)
+            case _:
+                pattern = re.compile(r'[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]', re.IGNORECASE)
+                return re.sub(pattern, '', text)
 
     def __try_detect(self, words: list[str]) -> list[LanguageDetectionResult]:
         results = []
@@ -149,15 +163,6 @@ class NaiveBayesDetectionModel(LanguageDetectionModel):
             self.logger.info(f'(Post-training validation) Language of text detected: {detected_languages}')
         else:
             self.logger.warning(f'(Post-training validation) Language of text not detected: {detected_languages}')
-
-    def __sanitize_by_language(self, text: str, expected_language) -> str:
-        match expected_language:
-            case 'ja' | 'zh' | 'zh-cn' | 'zh-tw':
-                pattern = re.compile(r'[^\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]')
-                return re.sub(pattern, '', text)
-            case _:
-                pattern = re.compile(r'[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]')
-                return re.sub(pattern, '', text)
 
     @property
     def connection(self):
