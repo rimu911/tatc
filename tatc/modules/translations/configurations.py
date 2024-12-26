@@ -91,6 +91,10 @@ class TatcTranslationModuleConfiguration(TatcModuleConfiguration):
     def sanitize_usernames(self) -> bool:
         return self.data.setdefault(SANITIZE_USERNAMES, False) or False
 
+    @property
+    def morse_code_support(self) -> bool:
+        return self.data.setdefault(MORSE_CODE_SUPPORT, False) or False
+
     @enabled.setter
     def enabled(self, value: bool):
         self.data[ENABLED] = Boolean.parse(value)
@@ -128,6 +132,10 @@ class TatcTranslationModuleConfiguration(TatcModuleConfiguration):
     @sanitize_usernames.setter
     def sanitize_usernames(self, value: bool):
         self.data[SANITIZE_USERNAMES] = Boolean.parse(value)
+
+    @morse_code_support.setter
+    def morse_code_support(self, value: bool):
+        self.data[MORSE_CODE_SUPPORT] = Boolean.parse(value)
 
     @property
     def supported_languages(self):

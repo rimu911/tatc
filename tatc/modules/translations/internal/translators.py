@@ -1,9 +1,18 @@
 from __future__ import annotations
 from functools import cached_property, lru_cache
-from tatc.modules.translations.internal.interfaces import LanguageTranslator, TranslationResult
+from os import path
 
+from tatc.core import *
+from tatc.modules.translations.internal.interfaces import LanguageTranslator, TranslationResult
+from tatc.modules.translations.constants import MORSE_CODE_LANGUAGE_ID, MORSE_CODE_ENGINE
+
+import json
+import re
 import translators as ts
 
+
+RESOURCES=path.join(working_directory(), 'resources')
+MORSE_CODE_RESOURCE=path.join(RESOURCES, 'morse_code.json')
 
 __CACHED_TRANSLATORS={}
 
@@ -14,6 +23,8 @@ def get_translator(translation_engine: str) -> GenericTranslator:
             return __CACHED_TRANSLATORS.setdefault('google', GoogleTranslator())
         case 'bing':
             return __CACHED_TRANSLATORS.setdefault('bing', BingTranslator())
+        case 'morse_code_engine':
+            return __CACHED_TRANSLATORS.setdefault(MORSE_CODE_ENGINE, MorseCodeTranslator())
         case _:
             return __CACHED_TRANSLATORS.setdefault(translation_engine, GenericTranslator(translation_engine))
 
@@ -83,4 +94,27 @@ class BingTranslator(GenericTranslator):
         return TranslationResult(
             detected_language=result['detectedLanguage']['language'],
             translated_text=result['translations'][0]['text']
+        )
+
+
+class MorseCodeTranslator(GenericTranslator):
+    def __init__(self):
+        with open(MORSE_CODE_RESOURCE) as fd:
+            self.__morse_codes = dict(json.load(fd))
+
+    @property
+    def morse_codes(self):
+        return self.__morse_codes
+
+    def translate(self, text: str, target_language: str):
+        text = text.replace('・', '.')
+        words = []
+        for morse_word in re.split(r'\s{2}', text.strip()):
+            characters = []
+            for morse_char in re.split(r'\s', morse_word):
+                characters.append(self.morse_codes.get(morse_char, ''))
+            words.append(''.join(characters))
+        return TranslationResult(
+            detected_language=MORSE_CODE_LANGUAGE_ID,
+            translated_text=' '.join(words)
         )

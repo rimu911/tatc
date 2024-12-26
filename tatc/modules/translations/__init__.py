@@ -75,7 +75,11 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
                 if detected_language in configuration.ignore_languages:
                     return
 
-        translator = get_translator(configuration.translation_engine)
+        translation_engine = configuration.translation_engine
+        if configuration.morse_code_support and MORSE_CODE_LANGUAGE_ID in detected_language:
+            translation_engine = MORSE_CODE_ENGINE
+
+        translator = get_translator(translation_engine)
         for target_language in configuration.target_languages:
             if target_language.lower() in detected_languages:
                 continue
@@ -95,4 +99,6 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
             )
             source_language = result.detected_language or ' ,'.join(detected_languages)
             self.logger.info(f'[{source_language} -> {target_language}] {output}')
-            await message.channel.send(f'[{source_language}] {output}')
+
+            if result.translated_text:
+                await message.channel.send(f'[{source_language}] {output}')

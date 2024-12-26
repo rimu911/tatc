@@ -281,3 +281,21 @@ class LazyLoadingDetectionModel(LanguageDetectionModel):
         self.logger.info(f'Unloading language models')
         self.model.unload_language_models()
         self.__load_model()
+
+
+class MorseCodeDetectionModel(LanguageDetectionModel):
+    def __init__(self, model: LanguageDetectionModel):
+        super().__init__()
+        self.__model = model
+
+    @property
+    def model(self):
+        return self.__model
+
+    def detect(self, text: str):
+        if re.match(r'[\.・\-\s]', text):
+            return ('morse_code', 1.0)
+        return self.model.detect(text)
+
+    def train(self, text: str, expected_language: str):
+        self.model.train(text, expected_language)
