@@ -76,7 +76,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
         translator = get_translator(configuration.translation_engine)
         for target_language in configuration.target_languages:
             if target_language.lower() in detected_languages:
-                continue
+                break
 
             result = translator.translate(text, target_language)
             if result.detected_language:
