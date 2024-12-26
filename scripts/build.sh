@@ -3,7 +3,7 @@
 cd "$(dirname "$(realpath "${0}")")/.."
 echo "Current Working Directory: '$(pwd)'"
 
-[[ -d "$(pwd)/.venv" ]] || python -m venv .venv
+[[ -d "$(pwd)/.venv" ]] || python3 -m venv .venv
 [[ -d "$(pwd)/dist" ]] && rm -rfv "$(pwd)/dist"
 
 (
