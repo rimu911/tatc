@@ -17,7 +17,7 @@ class LanguageTranslator:
     def supported_languages(self) -> list[str]:
         raise NotImplementedError
     
-    def translate(self, text: str, target_language: str) -> TranslationResult:
+    def translate(self, text: str, target_languages: list[str]) -> list[TranslationResult]:
         raise NotImplementedError
 
 
@@ -31,9 +31,9 @@ class TranslationResult:
         self.__translated_text = translated_text
 
     @property
-    def detected_language(self):
+    def detected_language(self) -> str:
         return self.__detected_language
 
     @property
-    def translated_text(self):
+    def translated_text(self) -> str:
         return self.__translated_text

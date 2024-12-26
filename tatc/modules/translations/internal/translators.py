@@ -17,14 +17,15 @@ MORSE_CODE_RESOURCE=path.join(RESOURCES, 'morse_code.json')
 __CACHED_TRANSLATORS={}
 
 
-def get_translator(translation_engine: str) -> GenericTranslator:
+def get_translator(translation_engine: str, detected_languages: list[str]) -> GenericTranslator:
+    if MORSE_CODE_LANGUAGE_ID in detected_languages:
+        return __CACHED_TRANSLATORS.setdefault(MORSE_CODE_ENGINE, MorseCodeTranslator())
+    
     match (translation_engine):
         case 'google':
             return __CACHED_TRANSLATORS.setdefault('google', GoogleTranslator())
         case 'bing':
             return __CACHED_TRANSLATORS.setdefault('bing', BingTranslator())
-        case 'morse_code_engine':
-            return __CACHED_TRANSLATORS.setdefault(MORSE_CODE_ENGINE, MorseCodeTranslator())
         case _:
             return __CACHED_TRANSLATORS.setdefault(translation_engine, GenericTranslator(translation_engine))
 
@@ -45,16 +46,19 @@ class GenericTranslator(LanguageTranslator):
     def translation_engine(self):
         return self.__translation_engine
 
-    def translate(self, text: str, target_language: str):
-        translated_text = ts.translate_text(
-            query_text=text,
-            to_language=target_language,
-            translator=self.translation_engine
-        )
-        return TranslationResult(
-            detected_language='',
-            translated_text=translated_text
-        )
+    def translate(self, text: str, target_languages: list[str]) -> list[TranslationResult]:
+        results = []
+        for target_language in target_languages:
+            translated_text = ts.translate_text(
+                query_text=text,
+                to_language=target_language,
+                translator=self.translation_engine
+            )
+            results.append(TranslationResult(
+                detected_language='',
+                translated_text=translated_text
+            ))
+        return results
 
     @lru_cache(maxsize=1)
     @staticmethod
@@ -66,35 +70,41 @@ class GoogleTranslator(GenericTranslator):
     def __init__(self):
         super().__init__('google')
 
-    def translate(self, text: str, target_language: str):
-        result = ts.translate_text(
-            query_text=text,
-            to_language=target_language,
-            translator=self.translation_engine,
-            is_detail_result=True
-        )
-        data = result['data'][-2]
-        return TranslationResult(
-            detected_language=data[-2],
-            translated_text=data[0][0][5][0][0]
-        )
+    def translate(self, text: str, target_languages: list[str]) -> list[TranslationResult]:
+        results = []
+        for target_language in target_languages:
+            result = ts.translate_text(
+                query_text=text,
+                to_language=target_language,
+                translator=self.translation_engine,
+                is_detail_result=True
+            )
+            data = result['data'][-2]
+            results.append(TranslationResult(
+                detected_language=data[-2],
+                translated_text=data[0][0][5][0][0]
+            ))
+        return results
 
 
 class BingTranslator(GenericTranslator):
     def __init__(self):
         super().__init__('bing')
 
-    def translate(self, text: str, target_language: str):
-        result = ts.translate_text(
-            query_text=text,
-            to_language=target_language,
-            translator=self.translation_engine,
-            is_detail_result=True
-        )
-        return TranslationResult(
-            detected_language=result['detectedLanguage']['language'],
-            translated_text=result['translations'][0]['text']
-        )
+    def translate(self, text: str, target_languages: list[str]) -> list[TranslationResult]:
+        results = []
+        for target_language in target_languages:
+            result = ts.translate_text(
+                query_text=text,
+                to_language=target_language,
+                translator=self.translation_engine,
+                is_detail_result=True
+            )
+            results.append(TranslationResult(
+                detected_language=result['detectedLanguage']['language'],
+                translated_text=result['translations'][0]['text']
+            ))
+        return results
 
 
 class MorseCodeTranslator(GenericTranslator):
@@ -106,7 +116,7 @@ class MorseCodeTranslator(GenericTranslator):
     def morse_codes(self):
         return self.__morse_codes
 
-    def translate(self, text: str, target_language: str):
+    def translate(self, text: str, target_languages: list[str]) -> list[TranslationResult]:
         text = text.replace('・', '.')
         words = []
         for morse_word in re.split(r'\s{2}', text.strip()):
@@ -114,7 +124,7 @@ class MorseCodeTranslator(GenericTranslator):
             for morse_char in re.split(r'\s', morse_word):
                 characters.append(self.morse_codes.get(morse_char, ''))
             words.append(''.join(characters))
-        return TranslationResult(
+        return [TranslationResult(
             detected_language=MORSE_CODE_LANGUAGE_ID,
             translated_text=' '.join(words)
-        )
+        )]

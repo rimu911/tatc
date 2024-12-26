@@ -1,5 +1,6 @@
 from tatc.core import *
 from tatc.modules.translations.configurations import environment
+from tatc.modules.translations.constants import MORSE_CODE_LANGUAGE_ID
 from tatc.modules.translations.internal.interfaces import LanguageDetectionModel
 from tatc.utilities import Directory, String
 
@@ -19,24 +20,25 @@ DATABASE_FILE=path.join(working_directory(), 'models.db')
 RESOURCES=path.join(working_directory(), 'resources')
 
 
-@lru_cache(maxsize=1)
-def get_language_detection_model():
-    model = environment().language_detection_model
-    if model not in ['adaptive-forced'] and \
+@lru_cache(maxsize=2)
+def get_language_detection_model(morse_code_support: bool = False):
+    language_detection_model = environment().language_detection_model
+    if language_detection_model not in ['adaptive-forced'] and \
         environment().default_translation_engine not in ['google', 'bing']:
-        model = 'legacy'
+        language_detection_model = 'legacy'
     
     logger = get_logger('models')
-    logger.info(f'Language Detection Model Loaded: {model}')
-    match model:
+    logger.info(f'Language Detection Model Loaded: {language_detection_model}')
+    model = None
+    match language_detection_model:
         case 'legacy':
-            return LegacyDetectionModel()
+            model = LegacyDetectionModel()
         case 'legacy-lazy':
-            return LazyLoadingDetectionModel(['en', 'ja', 'zh'])
+            model = LazyLoadingDetectionModel(['en', 'ja', 'zh'])
         case 'adaptive' | 'adaptive-forced':
-            return NaiveBayesDetectionModel()
+            model = NaiveBayesDetectionModel()
 
-    return None
+    return MorseCodeDetectionModel(model) if morse_code_support else model
 
 
 class LanguageDetectionResult:
@@ -294,7 +296,7 @@ class MorseCodeDetectionModel(LanguageDetectionModel):
 
     def detect(self, text: str):
         if re.match(r'[\.・\-\s]', text):
-            return ('morse_code', 1.0)
+            return (MORSE_CODE_LANGUAGE_ID, 1.0)
         return self.model.detect(text)
 
     def train(self, text: str, expected_language: str):

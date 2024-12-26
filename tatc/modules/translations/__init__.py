@@ -57,7 +57,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
         if not len(text) or text in configuration.ignore_words:
             return
 
-        models = get_language_detection_model()
+        models = get_language_detection_model(configuration.morse_code_support)
         results = models.detect(text)
         detected_languages = set()
         for source_language, score in results:
@@ -76,17 +76,18 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
                     return
 
         translation_engine = configuration.translation_engine
-        target_languages = configuration.target_languages
+        target_languages = configuration.target_languages.copy()
         if configuration.morse_code_support and MORSE_CODE_LANGUAGE_ID in detected_languages:
             translation_engine = MORSE_CODE_ENGINE
-            target_language = ['decoded_morse_code']
+            target_languages = ['decoded_morse_code']
 
-        translator = get_translator(translation_engine)
+        translator = get_translator(translation_engine, detected_languages)
         for target_language in target_languages:
             if target_language.lower() in detected_languages:
-                continue
+                target_languages.remove(target_language)
 
-            result = translator.translate(text, target_language)
+        results = translator.translate(text, target_languages)
+        for result in results:
             if result.detected_language:
                 if result.detected_language not in detected_languages:
                     models.train(text, result.detected_language)
