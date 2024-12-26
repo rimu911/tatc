@@ -76,11 +76,13 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
                     return
 
         translation_engine = configuration.translation_engine
+        target_languages = configuration.target_languages
         if configuration.morse_code_support and MORSE_CODE_LANGUAGE_ID in detected_language:
             translation_engine = MORSE_CODE_ENGINE
+            target_language = ['decoded_morse_code']
 
         translator = get_translator(translation_engine)
-        for target_language in configuration.target_languages:
+        for target_language in target_languages:
             if target_language.lower() in detected_languages:
                 continue
 
