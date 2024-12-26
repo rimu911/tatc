@@ -294,9 +294,9 @@ class MorseCodeDetectionModel(LanguageDetectionModel):
     def model(self):
         return self.__model
 
-    def detect(self, text: str):
+    def detect(self, text: str) -> list[(str, float)]:
         if re.match(r'[\.・\-\s]', text):
-            return (MORSE_CODE_LANGUAGE_ID, 1.0)
+            return [(MORSE_CODE_LANGUAGE_ID, 1.0)]
         return self.model.detect(text)
 
     def train(self, text: str, expected_language: str):
