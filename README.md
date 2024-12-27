@@ -155,5 +155,6 @@ _Note: Configuration for translation is per channel basis, and is not shared acr
 | `ignore_words`       | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated, defaults to the environment variable `default_ignore_words` unless overridden                        |
 | `debug_mode`         | `bool`      | `true`              | Allow errors messages to be sent as messages by the chatbot                                                                                                         |
 | `enabled`            | `bool`      | `true`              | Enable or disable the module for the current channel                                                                                                                |
+| `morse_code_support` | `bool`      | `false`             | Enable or disable morse code support for the current channel                                                                                                        |
 
 

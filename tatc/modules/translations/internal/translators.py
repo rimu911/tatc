@@ -142,8 +142,8 @@ class MorseCodeTranslator(LanguageTranslator):
                 translated_text=' '.join(words)
             )
 
-        target_languages = tuple(filter(lambda target_language: target_language.lower() != MORSE_CODE_DECODED_LANGUAGE_ID, target_languages))
-        for result in self.translator.translate(text, tuple(target_languages)):
+        target_languages = filter(lambda target_language: target_language.lower() != MORSE_CODE_DECODED_LANGUAGE_ID, target_languages)
+        for result in self.translator.translate(text, *target_languages):
             yield result
 
     @lru_cache(maxsize=1)

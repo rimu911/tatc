@@ -84,7 +84,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
         translator = get_translator(translation_engine, configuration.morse_code_support)
         target_languages = list(filter(lambda target_language: target_language.lower() not in detected_languages, target_languages))
 
-        for result in translator.translate(text, tuple(target_languages)):
+        for result in translator.translate(text, *target_languages):
             if result.detected_language:
                 if result.detected_language not in detected_languages:
                     models.train(text, result.detected_language)
