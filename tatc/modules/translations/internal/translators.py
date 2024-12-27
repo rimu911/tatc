@@ -22,11 +22,11 @@ def get_translator(translation_engine: str, morse_code_support: bool) -> Languag
     translator = None
     match (translation_engine):
         case 'google':
-            return GoogleTranslator()
+            translator = GoogleTranslator()
         case 'bing':
-            return BingTranslator()
+            translator = BingTranslator()
         case _:
-            return GenericTranslator(translation_engine)
+            translator = GenericTranslator(translation_engine)
 
     return MorseCodeTranslator(translator) if morse_code_support else translator
 
