@@ -22,7 +22,11 @@ imposed by third parties provider
 ## Building from source
 
 ### Windows:
-*Coming Soon*
+```
+# git clone https://github.com/rimu911/tatc
+cd tatc\
+scripts\build.bat
+```
 
 ### Linux/Mac:
 ```bash
@@ -43,7 +47,7 @@ By default, the chatbot will always join the channel of the current user, or the
 From there, the bot administrator can issue the `!join <channel>` command to join the specified channels.  
 Further configuration can be done by the bot administrator, or the broadcaster (also known as the channel owner) by issuing the command `!config ...`
 on their respective live chats.  
-All configurations are tied to their respective channels, and is  not globally shared.
+All configurations are tied to their respective channels, and is not shared globally.
 
 ### Administrative Commands
 
@@ -125,7 +129,7 @@ _Note: The following can be specified as an environment variable, or in `.env` w
 
 ##### Supported Language Detection Models
 `legacy`
-* Uses pre-trained models in the included libraries to identify supported languages; This detection model has the lowest detection accuracy 
+* Uses pre-trained models in the included libraries to identify supported languages; This detection model has the lowest detection accuracy
 
 `legacy-lazy`
 * Uses pre-trained models in the included libraries to identify supported languages; This model utilizes the lazy loading mechanism and is loaded as needed.
@@ -133,27 +137,28 @@ _Note: The following can be specified as an environment variable, or in `.env` w
 
 `adaptive`
 * This models adaptively learns the words to needed to identify languages using Multinomial Naive Bayes algorithm
-* This model is only supported when `translation_engine` is set to `google` or `bing` as the algorithmn relies results from these engine for learning
+* This model is only supported when `translation_engine` is set to `google` or `bing` as the algorithmn relies results from these engine for training
 * Training data can be added to `resources/<language_id>.csv` to improve initial detection accuracy or to reduce the need to use external services
 
 `adaptive-forced`
 * Forces loading the adaptive model when using an unsupported translation engine
 * Adaptive learning may not be available and accuracy is limited to known data only
 
-When using other available but unsupported translation engine, language detection model will always default to `legacy`
+When using other available but unsupported translation engine, language detection model will always default to `legacy` with exception to `adaptive-forced`
 
 #### Translation
 _Note: Configuration for translation is per channel basis, and is not shared across all channels_
 
-| Supported Key        | Value Type  | Example             | Description                                                                                                                                  |
-| -------------------- | ----------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `target_languages`   | `list[str]` | `en,ja`             | The target languages to be translated, by default, chat messages in the specified target languages will be ignored                           |
-| `ignore_languages`   | `list[str]` | `en,ja`             | The languages to ignore, by default, chat messages in the specified target languages will be ignored                                         |
-| `translation_engine` | `str`       | `google`            | The translation engine to use for translation, defaults to the environment variable `default_translation_engine` unless overridden           |
-| `sanitize_emojis`    | `bool`      | `true`              | Remove emojis from text before sending for translation                                                                                       |
-| `sanitize_usernames` | `bool`      | `true`              | Remove usernames from text before sending for translation                                                                                    |
-| `ignore_words`       | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated, defaults to the environment variable `default_ignore_words` unless overridden |
-| `debug_mode`         | `bool`      | `true`              | Allow errors messages to be sent as messages by the chatbot                                                                                  |
-| `enabled`            | `bool`      | `true`              | Enable or disable the module for the current channel                                                                                         |
+| Supported Key        | Value Type  | Example             | Description                                                                                                                                                         |
+| -------------------- | ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target_languages`   | `list[str]` | `en,ja`             | The target languages to be translated to; If the language of the message matches to any of target languages, it will be translated to the other specified languages |
+| `ignore_languages`   | `list[str]` | `en,ja`             | The languages to ignore, when specified, the message in the specified language will be ignored                                                                      |
+| `translation_engine` | `str`       | `google`            | The translation engine to use for translation, defaults to the environment variable `default_translation_engine` unless overridden                                  |
+| `sanitize_emojis`    | `bool`      | `true`              | Remove emojis from text before sending for translation                                                                                                              |
+| `sanitize_usernames` | `bool`      | `true`              | Remove usernames from text before sending for translation                                                                                                           |
+| `ignore_words`       | `list[str]` | `word_one,word_two` | List of words matching the whole message to be not translated, defaults to the environment variable `default_ignore_words` unless overridden                        |
+| `debug_mode`         | `bool`      | `true`              | Allow errors messages to be sent as messages by the chatbot                                                                                                         |
+| `enabled`            | `bool`      | `true`              | Enable or disable the module for the current channel                                                                                                                |
+| `morse_code_support` | `bool`      | `false`             | Enable or disable morse code support for the current channel                                                                                                        |
 
 

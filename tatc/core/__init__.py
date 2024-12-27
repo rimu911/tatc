@@ -82,7 +82,9 @@ def get_logger(logger_name: str):
         case 'NULL':
             handlers.append(logging.NullHandler())
         case _:
-            file = path.join(working_directory(), f'{logger_name}.log')
+            log_dir = path.join(working_directory(), 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            file = path.join(log_dir, f'{logger_name}.log')
             handler = RotatingFileHandler(
                 filename=file,
                 maxBytes=10 * 1024 * 1024,

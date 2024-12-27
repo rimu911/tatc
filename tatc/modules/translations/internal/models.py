@@ -1,5 +1,6 @@
 from tatc.core import *
 from tatc.modules.translations.configurations import environment
+from tatc.modules.translations.constants import MORSE_CODE_LANGUAGE_ID
 from tatc.modules.translations.internal.interfaces import LanguageDetectionModel
 from tatc.utilities import Directory, String
 
@@ -19,24 +20,25 @@ DATABASE_FILE=path.join(working_directory(), 'models.db')
 RESOURCES=path.join(working_directory(), 'resources')
 
 
-@lru_cache(maxsize=1)
-def get_language_detection_model():
-    model = environment().language_detection_model
-    if model not in ['adaptive-forced'] and \
+@lru_cache()
+def get_language_detection_model(morse_code_support: bool = False):
+    language_detection_model = environment().language_detection_model
+    if language_detection_model not in ['adaptive-forced'] and \
         environment().default_translation_engine not in ['google', 'bing']:
-        model = 'legacy'
+        language_detection_model = 'legacy'
     
     logger = get_logger('models')
-    logger.info(f'Language Detection Model Loaded: {model}')
-    match model:
+    logger.info(f'Language Detection Model Loaded: {language_detection_model}')
+    model = None
+    match language_detection_model:
         case 'legacy':
-            return LegacyDetectionModel()
+            model = LegacyDetectionModel()
         case 'legacy-lazy':
-            return LazyLoadingDetectionModel(['en', 'ja', 'zh'])
+            model = LazyLoadingDetectionModel(['en', 'ja', 'zh'])
         case 'adaptive' | 'adaptive-forced':
-            return NaiveBayesDetectionModel()
+            model = NaiveBayesDetectionModel()
 
-    return None
+    return MorseCodeDetectionModel(model) if morse_code_support else model
 
 
 class LanguageDetectionResult:
@@ -223,7 +225,9 @@ class LegacyDetectionModel(LanguageDetectionModel):
 
     def detect(self, text: str) -> list[(str, float)]:
         detected_language = self.model.detect_language_of(text)
-        return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
+        if detected_language:
+            return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
+        return []
     
     def train(self, text: str, expected_language: str):
         pass
@@ -271,7 +275,9 @@ class LazyLoadingDetectionModel(LanguageDetectionModel):
 
     def detect(self, text: str) -> list[(str, float)]:
         detected_language = self.model.detect_language_of(text)
-        return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
+        if detected_language:
+            return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
+        return []
     
     def train(self, text: str, expected_language: str):
         expected_language = expected_language.lower()
@@ -281,3 +287,21 @@ class LazyLoadingDetectionModel(LanguageDetectionModel):
         self.logger.info(f'Unloading language models')
         self.model.unload_language_models()
         self.__load_model()
+
+
+class MorseCodeDetectionModel(LanguageDetectionModel):
+    def __init__(self, model: LanguageDetectionModel):
+        super().__init__()
+        self.__model = model
+
+    @property
+    def model(self):
+        return self.__model
+
+    def detect(self, text: str) -> list[(str, float)]:
+        if re.match(r'^[\.・\-\s]+$', text):
+            return [(MORSE_CODE_LANGUAGE_ID, 1.0)]
+        return self.model.detect(text)
+
+    def train(self, text: str, expected_language: str):
+        self.model.train(text, expected_language)
