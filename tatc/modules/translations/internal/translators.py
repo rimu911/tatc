@@ -16,18 +16,17 @@ import translators as ts
 RESOURCES=path.join(working_directory(), 'resources')
 MORSE_CODE_RESOURCE=path.join(RESOURCES, 'morse_code.json')
 
-__CACHED_TRANSLATORS={}
 
-
+@lru_cache()
 def get_translator(translation_engine: str, morse_code_support: bool) -> LanguageTranslator:
     translator = None
     match (translation_engine):
         case 'google':
-            translator = __CACHED_TRANSLATORS.setdefault('google', GoogleTranslator())
+            return GoogleTranslator()
         case 'bing':
-            translator = __CACHED_TRANSLATORS.setdefault('bing', BingTranslator())
+            return BingTranslator()
         case _:
-            translator = __CACHED_TRANSLATORS.setdefault(translation_engine, GenericTranslator(translation_engine))
+            return GenericTranslator(translation_engine)
 
     return MorseCodeTranslator(translator) if morse_code_support else translator
 

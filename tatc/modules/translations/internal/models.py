@@ -20,7 +20,7 @@ DATABASE_FILE=path.join(working_directory(), 'models.db')
 RESOURCES=path.join(working_directory(), 'resources')
 
 
-@lru_cache(maxsize=2)
+@lru_cache()
 def get_language_detection_model(morse_code_support: bool = False):
     language_detection_model = environment().language_detection_model
     if language_detection_model not in ['adaptive-forced'] and \
