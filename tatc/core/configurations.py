@@ -28,7 +28,7 @@ class Environment:
 
     @property
     def bot_administrators(self) -> list[str]:
-        return list(self.__bot_administrators)
+        return list(self.__bot_administrators).copy()
 
     @property
     def command_prefix(self) -> str:

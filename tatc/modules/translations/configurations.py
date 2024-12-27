@@ -69,11 +69,11 @@ class TatcTranslationModuleConfiguration(TatcModuleConfiguration):
     
     @property
     def target_languages(self) -> list[str]:
-        return self.data.setdefault(TARGET_LANGUAGES, []) or []
+        return (self.data.setdefault(TARGET_LANGUAGES, []) or []).copy()
 
     @property
     def ignore_languages(self) -> list[str]:
-        return self.data.setdefault(IGNORE_LANGUAGES, []) or []
+        return (self.data.setdefault(IGNORE_LANGUAGES, []) or []).copy()
 
     @property
     def debug_mode(self) -> bool:
@@ -85,7 +85,7 @@ class TatcTranslationModuleConfiguration(TatcModuleConfiguration):
 
     @property
     def ignore_words(self) -> list[str]:
-        return self.data.setdefault(IGNORE_WORDS, environment().default_ignore_words)
+        return self.data.setdefault(IGNORE_WORDS, environment().default_ignore_words).copy()
 
     @property
     def sanitize_usernames(self) -> bool:

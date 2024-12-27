@@ -225,7 +225,9 @@ class LegacyDetectionModel(LanguageDetectionModel):
 
     def detect(self, text: str) -> list[(str, float)]:
         detected_language = self.model.detect_language_of(text)
-        return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
+        if detected_language:
+            return [(detected_language.iso_code_639_1.name.lower(), 1.0)]
+        return []
     
     def train(self, text: str, expected_language: str):
         pass
@@ -295,7 +297,7 @@ class MorseCodeDetectionModel(LanguageDetectionModel):
         return self.__model
 
     def detect(self, text: str) -> list[(str, float)]:
-        if re.match(r'[\.・\-\s]', text):
+        if re.match(r'^[\.・\-\s]+$', text):
             return [(MORSE_CODE_LANGUAGE_ID, 1.0)]
         return self.model.detect(text)
 

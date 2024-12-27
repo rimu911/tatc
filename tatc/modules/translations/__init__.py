@@ -12,6 +12,7 @@ from tatc.modules.translations.utilities import Twitch, TwitchEmote
 
 import re
 
+
 class TatcTranslationModule(TatcChannelModule, commands.Cog):
     def __init__(
         self,
@@ -76,23 +77,19 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
                     return
 
         translation_engine = configuration.translation_engine
-        target_languages = configuration.target_languages.copy()
+        target_languages = configuration.target_languages
         if configuration.morse_code_support and MORSE_CODE_LANGUAGE_ID in detected_languages:
-            translation_engine = MORSE_CODE_ENGINE
-            target_languages = ['decoded_morse_code']
+            target_languages = [MORSE_CODE_DECODED_LANGUAGE_ID]
 
-        translator = get_translator(translation_engine, detected_languages)
-        for target_language in target_languages:
-            if target_language.lower() in detected_languages:
-                target_languages.remove(target_language)
+        translator = get_translator(translation_engine, configuration.morse_code_support)
+        target_languages = list(filter(lambda target_language: target_language.lower() not in detected_languages, target_languages))
 
-        results = translator.translate(text, target_languages)
-        for result in results:
+        for result in translator.translate(text, tuple(target_languages)):
             if result.detected_language:
                 if result.detected_language not in detected_languages:
                     models.train(text, result.detected_language)
 
-                if result.detected_language == target_language.lower() or \
+                if result.detected_language == result.expected_language or \
                     result.detected_language in configuration.ignore_languages:
                     continue
 
@@ -101,7 +98,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
                 text=result.translated_text
             )
             source_language = result.detected_language or ' ,'.join(detected_languages)
-            self.logger.info(f'[{source_language} -> {target_language}] {output}')
+            self.logger.info(f'[{source_language} -> {result.expected_language}] {output}')
 
             if result.translated_text:
                 await message.channel.send(f'[{source_language}] {output}')
