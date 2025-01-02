@@ -1,16 +1,16 @@
 from __future__ import annotations
 from __version__ import *
+from typing import Optional
 
 from twitchio import Message
 from twitchio.ext import commands
 
 from tatc.core import TatcChannelModule, TatcApplicationConfiguration, environment, get_logger, sync_configuration
 from tatc.errors import InvalidArgumentsError, UnauthorizedUserError, UnknownModuleError
+from tatc.utilities import String
 
 import logging
 import twitchio
-
-from tatc.utilities import String
 
 
 class TatcTwitchChatBot(commands.Bot):
@@ -85,6 +85,16 @@ class TatcTwitchChatBot(commands.Bot):
         if not self.__is_roles(user, is_administrator=is_administrator, is_broadcaster=is_broadcaster, is_moderator=is_moderator):
             username = '<unknown>' if String.is_blank(user) else user.name
             raise UnauthorizedUserError(f'"{username}" is not an authorized user.')
+        
+    async def event_raw_data(self, data: str):
+        self.logger.debug(str(data))
+        return await super().event_raw_data(data)
+    
+    async def event_error(self, error: Exception, data: Optional[str] = None):
+        self.logger.error(error)
+        if data:
+            self.logger.debug(f'Event error data: "{data}"')
+        return await super().event_error(error, data)
 
     async def event_ready(self):
         self.logger.info(f'Logged in successfully as "{self.nick}"...')
