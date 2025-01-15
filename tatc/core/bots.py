@@ -1,7 +1,6 @@
 from __future__ import annotations
 from __version__ import *
 from typing import Optional
-
 from twitchio import Message
 from twitchio.ext import commands
 
@@ -88,7 +87,10 @@ class TatcTwitchChatBot(commands.Bot):
         
     async def event_raw_data(self, data: str):
         self.logger.debug(str(data))
-        return await super().event_raw_data(data)
+        if not String.is_blank(data):
+            return await super().event_raw_data(data)
+        # for some unknown reasons, twitchio is failing to reconnect after disconnection
+        return await super().event_reconnect()
     
     async def event_error(self, error: Exception, data: Optional[str] = None):
         self.logger.error(error)

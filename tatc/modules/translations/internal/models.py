@@ -1,14 +1,14 @@
-from tatc.core import *
-from tatc.modules.translations.configurations import environment
-from tatc.modules.translations.constants import MORSE_CODE_LANGUAGE_ID
-from tatc.modules.translations.internal.interfaces import LanguageDetectionModel
-from tatc.utilities import Directory, String
-
 from functools import lru_cache
 from lingua import Language, LanguageDetector, LanguageDetectorBuilder
 from os import path
 from pathlib import Path
 from typing import Iterable
+
+from tatc.core import *
+from tatc.modules.translations.configurations import environment
+from tatc.modules.translations.constants import MORSE_CODE_LANGUAGE_ID
+from tatc.modules.translations.internal.interfaces import LanguageDetectionModel
+from tatc.utilities import Directory, String
 
 import csv
 import re

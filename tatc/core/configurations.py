@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from functools import cached_property
 from os import environ
 from typing import Union
