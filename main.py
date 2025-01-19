@@ -7,11 +7,15 @@ import signal
 
 
 def main():
-    bot = TatcTwitchChatBot(
-        configuration=core.init(),
-        modules=load_modules()
-    )
-    bot.run()
+    try:
+        bot = TatcTwitchChatBot(
+            configuration=core.init(),
+            modules=load_modules()
+        )
+        bot.run()
+    except:
+        print('An error has been encountered... Terminating...')
+        raise
 
 
 if __name__ == '__main__':
