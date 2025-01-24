@@ -14,9 +14,10 @@ def main():
         )
         bot.run()
     except:
-        print('An error has been encountered... Terminating...')
+        print('An error has been encountered...')
         raise
 
+    print('Exiting...')
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)

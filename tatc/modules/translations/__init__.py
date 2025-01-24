@@ -30,7 +30,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
 
     @commands.Cog.event()
     async def event_message(self, message: Message):
-        if message.echo or (self.bot.nick == message.author.name and re.match(f'^\[.+?\] {self.nick}: .+$', message.content)):
+        if message.echo or (self.bot.nick == message.author.name and re.match(f'^\[.+?\] {self.bot.nick}: .+$', message.content)):
             return
 
         if message.content.startswith(environment().command_prefix):
