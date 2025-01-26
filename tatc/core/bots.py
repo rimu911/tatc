@@ -87,6 +87,7 @@ class TatcTwitchChatBot(commands.Bot):
         
     async def event_raw_data(self, data: str):
         self.logger.debug(f'event_raw_data: "{data}"')
+        self.logger.debug(f'is_blank: "{String.is_blank(data)}"')
         if String.is_blank(data):
             # for some unknown reasons, twitchio is failing to reconnect after disconnection or receiving a blank raw data
             self.logger.debug('Blank message received! Signalling stop!')
