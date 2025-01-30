@@ -52,7 +52,7 @@ class Boolean:
 
 class String:
     def is_blank(value: str) -> bool:
-        return Objects.is_blank(value.strip() if isinstance(value, str) else value)
+        return Objects.is_blank(value.strip())
 
     @staticmethod
     def strips(values: Iterable[str]) -> list[str]:

@@ -86,7 +86,7 @@ class TatcTwitchChatBot(commands.Bot):
             raise UnauthorizedUserError(f'"{username}" is not an authorized user.')
         
     async def event_raw_data(self, data: str):
-        self.logger.debug(f'event_raw_data: "{data}"')
+        self.logger.debug(f'event_raw_data: "{data}" length: "{len(data)}" type: "{type(data).__name__}"')
         self.logger.debug(f'is_blank: "{String.is_blank(data)}"')
         if String.is_blank(data):
             # for some unknown reasons, twitchio is failing to reconnect after disconnection or receiving a blank raw data
