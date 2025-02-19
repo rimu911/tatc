@@ -90,7 +90,7 @@ class TatcTwitchChatBot(commands.Bot):
     async def event_raw_data(self, data: str):
         self.logger.debug(f'event_raw_data: "{data}" type: "{type(data).__name__}"')
         if isinstance(data, ServerTimeoutError):
-            self.logger.debug('Blank message received! Signalling stop!')
+            self.logger.debug('Server Timeout received! Signalling stop!')
             self.loop.call_soon_threadsafe(self.loop.stop)
             return
         return await super().event_raw_data(data)
