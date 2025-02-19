@@ -1,5 +1,7 @@
 from __future__ import annotations
 from __version__ import *
+
+from aiohttp import ServerTimeoutError
 from typing import Optional
 from twitchio import Message
 from twitchio.ext import commands
@@ -86,10 +88,8 @@ class TatcTwitchChatBot(commands.Bot):
             raise UnauthorizedUserError(f'"{username}" is not an authorized user.')
         
     async def event_raw_data(self, data: str):
-        self.logger.debug(f'event_raw_data: "{data}" length: "{len(data)}" type: "{type(data).__name__}"')
-        self.logger.debug(f'is_blank: "{String.is_blank(data)}"')
-        if String.is_blank(data):
-            # for some unknown reasons, twitchio is failing to reconnect after disconnection or receiving a blank raw data
+        self.logger.debug(f'event_raw_data: "{data}" type: "{type(data).__name__}"')
+        if isinstance(data, ServerTimeoutError):
             self.logger.debug('Blank message received! Signalling stop!')
             self.loop.call_soon_threadsafe(self.loop.stop)
             return
