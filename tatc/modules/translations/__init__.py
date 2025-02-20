@@ -1,10 +1,9 @@
-from tatc.errors import ModuleNotEnabledError
-from tatc.modules.translations.constants import *
-
 from twitchio import Message
 from twitchio.ext import commands
 
 from tatc.core import TatcChannelModule, TatcApplicationConfiguration, TatcModuleConfiguration, get_logger
+from tatc.errors import ModuleNotEnabledError
+from tatc.modules.translations.constants import *
 from tatc.modules.translations.configurations import TatcTranslationModuleConfiguration, environment
 from tatc.modules.translations.internal.models import get_language_detection_model
 from tatc.modules.translations.internal.translators import get_translator
@@ -31,7 +30,7 @@ class TatcTranslationModule(TatcChannelModule, commands.Cog):
 
     @commands.Cog.event()
     async def event_message(self, message: Message):
-        if message.echo or (self.bot.nick == message.author.name and re.match(f'^\[.+?\] {self.nick}: .+$', message.content)):
+        if message.echo or (self.bot.nick == message.author.name and re.match(f'^\[.+?\] {self.bot.nick}: .+$', message.content)):
             return
 
         if message.content.startswith(environment().command_prefix):

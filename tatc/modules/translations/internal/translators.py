@@ -128,9 +128,9 @@ class MorseCodeTranslator(LanguageTranslator):
 
     def translate(self, text: str, *target_languages: str) -> Iterator[TranslationResult]:
         if MORSE_CODE_DECODED_LANGUAGE_ID in target_languages:
-            text = text.replace('・', '.')
+            text = text.replace('・', '.').replace('－', '-')
             words = []
-            for morse_word in re.split(r'\s{2}', text.strip()):
+            for morse_word in re.split(r'\s{2}|/', text.strip()):
                 characters = []
                 for morse_char in re.split(r'\s', morse_word):
                     characters.append(self.morse_codes.get(morse_char, ''))

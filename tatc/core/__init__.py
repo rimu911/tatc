@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from functools import lru_cache
 from logging.handlers import *
 from os import path
-
 from twitchio.ext import commands
 
 from tatc.core.configurations import *
