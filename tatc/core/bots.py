@@ -84,7 +84,7 @@ class TatcTwitchChatBot(commands.Bot):
         is_moderator: bool = False
     ):
         if not self.__is_roles(user, is_administrator=is_administrator, is_broadcaster=is_broadcaster, is_moderator=is_moderator):
-            username = '<unknown>' if String.is_blank(user) else user.name
+            username = '<unknown>' if Object.is_blank(user) else user.name
             raise UnauthorizedUserError(f'"{username}" is not an authorized user.')
         
     async def event_raw_data(self, data: str):
