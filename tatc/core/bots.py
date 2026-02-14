@@ -8,7 +8,7 @@ from twitchio.ext import commands
 
 from tatc.core import TatcChannelModule, TatcApplicationConfiguration, environment, get_logger, sync_configuration
 from tatc.errors import InvalidArgumentsError, UnauthorizedUserError, UnknownModuleError
-from tatc.utilities import String
+from tatc.utilities import Objects, String
 
 import logging
 import twitchio
@@ -70,7 +70,7 @@ class TatcTwitchChatBot(commands.Bot):
         is_moderator: bool = False
     ):
         administrators = environment().bot_administrators
-        return False if String.is_blank(user) else (
+        return False if Objects.is_blank(user) else (
             (is_moderator and (user.is_mod or user.is_broadcaster or user.name in administrators)) or
             (is_broadcaster and (user.is_broadcaster or user.name in administrators)) or
             (is_administrator and user.name in administrators)
@@ -84,7 +84,7 @@ class TatcTwitchChatBot(commands.Bot):
         is_moderator: bool = False
     ):
         if not self.__is_roles(user, is_administrator=is_administrator, is_broadcaster=is_broadcaster, is_moderator=is_moderator):
-            username = '<unknown>' if Object.is_blank(user) else user.name
+            username = '<unknown>' if Objects.is_blank(user) else user.name
             raise UnauthorizedUserError(f'"{username}" is not an authorized user.')
         
     async def event_raw_data(self, data: str):
