@@ -1,10 +1,8 @@
-import threading
 
 from dotenv import load_dotenv
 from functools import lru_cache
 from logging.handlers import *
 from os import path
-
 from twitchio.ext import commands
 
 from tatc.core.configurations import *
@@ -13,6 +11,8 @@ from tatc.core.constants import *
 import json
 import logging
 import os
+import threading
+
 
 load_dotenv(
     path.join(
@@ -81,7 +81,9 @@ def get_logger(logger_name: str):
         case 'NULL':
             handlers.append(logging.NullHandler())
         case _:
-            file = path.join(working_directory(), f'{logger_name}.log')
+            log_dir = path.join(working_directory(), 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            file = path.join(log_dir, f'{logger_name}.log')
             handler = RotatingFileHandler(
                 filename=file,
                 maxBytes=10 * 1024 * 1024,
@@ -114,6 +116,11 @@ class TatcChannelModule(commands.Cog):
         self.__configuration = configuration
         self.__name = name
         self.__logger = logger or get_logger('')
+        self.__bot = None
+
+    @property
+    def bot(self) -> commands.Bot:
+        return self.__bot
 
     @property
     def name(self) -> str:
@@ -126,7 +133,11 @@ class TatcChannelModule(commands.Cog):
     def _configurations(self) -> TatcApplicationConfiguration:
         return self.__configuration
 
-    def get_module_configuration(self, channel_name: str) -> TatcChannelModuleConfiguration:
+    @bot.setter
+    def bot(self, bot: commands.Bot):
+        self.__bot = bot
+
+    def get_module_configuration(self, channel_name: str) -> TatcModuleConfiguration:
         """
         Returns the configuration module object relevant to the current channel module
         """

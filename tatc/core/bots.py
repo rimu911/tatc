@@ -1,16 +1,17 @@
 from __future__ import annotations
 from __version__ import *
 
+from aiohttp import ServerTimeoutError
+from typing import Optional
 from twitchio import Message
 from twitchio.ext import commands
 
-from tatc.core import Environment, TatcChannelModule, TatcApplicationConfiguration, environment, init, get_logger, sync_configuration
+from tatc.core import TatcChannelModule, TatcApplicationConfiguration, environment, get_logger, sync_configuration
 from tatc.errors import InvalidArgumentsError, UnauthorizedUserError, UnknownModuleError
+from tatc.utilities import Objects, String
 
 import logging
 import twitchio
-
-from tatc.utilities import String
 
 
 class TatcTwitchChatBot(commands.Bot):
@@ -61,7 +62,7 @@ class TatcTwitchChatBot(commands.Bot):
             data[name] = module
         return data
 
-    def __require_roles(
+    def __is_roles(
         self,
         user: twitchio.Chatter,
         is_administrator: bool = False,
@@ -69,12 +70,36 @@ class TatcTwitchChatBot(commands.Bot):
         is_moderator: bool = False
     ):
         administrators = environment().bot_administrators
-        if (
-            (is_moderator and not (user.is_mod or user.is_broadcaster or user.name in administrators)) or
-            (is_broadcaster and not (user.is_broadcaster or user.name in administrators)) or
-            (is_administrator and user.name not in administrators)
-        ):
-            raise UnauthorizedUserError(f'"{user.name}" is not an authorized user.')
+        return False if Objects.is_blank(user) else (
+            (is_moderator and (user.is_mod or user.is_broadcaster or user.name in administrators)) or
+            (is_broadcaster and (user.is_broadcaster or user.name in administrators)) or
+            (is_administrator and user.name in administrators)
+        )
+
+    def __require_roles(
+        self,
+        user: twitchio.Chatter,
+        is_administrator: bool = False,
+        is_broadcaster: bool = False,
+        is_moderator: bool = False
+    ):
+        if not self.__is_roles(user, is_administrator=is_administrator, is_broadcaster=is_broadcaster, is_moderator=is_moderator):
+            username = '<unknown>' if Objects.is_blank(user) else user.name
+            raise UnauthorizedUserError(f'"{username}" is not an authorized user.')
+        
+    async def event_raw_data(self, data: str):
+        self.logger.debug(f'event_raw_data: "{data}" type: "{type(data).__name__}"')
+        if isinstance(data, ServerTimeoutError):
+            self.logger.debug('Server Timeout received! Signalling stop!')
+            self.loop.call_soon_threadsafe(self.loop.stop)
+            return
+        return await super().event_raw_data(data)
+    
+    async def event_error(self, error: Exception, data: Optional[str] = None):
+        self.logger.error(error)
+        if data:
+            self.logger.debug(f'event_error: "{data}"')
+        return await super().event_error(error, data)
 
     async def event_ready(self):
         self.logger.info(f'Logged in successfully as "{self.nick}"...')
@@ -92,12 +117,13 @@ class TatcTwitchChatBot(commands.Bot):
         self.logger.info(f'{appname} ({version}) is ready!')
 
         for module in self.__modules.values():
+            module.bot = self
             self.add_cog(module)
             self.logger.info(f'Module loaded: "{module.name}"')
 
     async def event_command_error(self, context: commands.Context, error: Exception) -> None:
         configuration = self.configurations.get_channel_configuration(context.channel.name)
-        if configuration.debug_mode:
+        if configuration.debug_mode or self.__is_roles(context.author, is_administrator=True):
             await context.send(f'Error: "{str(error)}"')
 
         self.logger.error(str(error))

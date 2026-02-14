@@ -68,4 +68,9 @@ class Twitch:
 
     @staticmethod
     def sanitize_username(message: str):
-        return re.sub(r'@[a-z0-9_]{4,25}', '', message, re.IGNORECASE).strip()
+        # important: twitch username can contain non-latin characters
+        return re.sub(r'@[\S]{4,25}', '', message, re.IGNORECASE).strip()
+
+    @staticmethod
+    def sanitize_uris(message: str):
+        return re.sub(r'[a-z]+://[\S]+', '', message, re.IGNORECASE)

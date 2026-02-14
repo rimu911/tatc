@@ -41,10 +41,6 @@ def bot_administrators() -> list[str]:
     return administrators
 
 
-def low_memory_mode() -> bool:
-    return environ.get('low_memory_mode', 'true').lower() == 'true'
-
-
 def default_translation_engine() -> str:
     return environ.get('default_translation_engine', 'google')
 
